@@ -1,7 +1,7 @@
 package absolutelyaya.goop.api;
 
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector4f;
 
@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
  * @see absolutelyaya.goop.api.AbstractGoopEmitter
  * @see absolutelyaya.goop.api.GoopEmitterRegistry
  */
-public class ProjectileHitGoopEmitter<T extends ProjectileEntity> extends AbstractGoopEmitter<T>
+public class ProjectileHitGoopEmitter<T extends Projectile> extends AbstractGoopEmitter<T>
 {
 	protected final BiFunction<T, HitResult, Integer> color;
 	protected final BiFunction<T, HitResult, Vector4f> velocity;

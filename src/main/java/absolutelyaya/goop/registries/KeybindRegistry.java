@@ -1,30 +1,23 @@
 package absolutelyaya.goop.registries;
 
+import absolutelyaya.goop.Goop;
 import absolutelyaya.goop.particles.GoopParticle;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-public class KeybindRegistry
-{
-	public static final KeyBinding CLEAR_GOOP = KeyBindingHelper.registerKeyBinding(
-			new KeyBinding("key.goop.clear", InputUtil.Type.KEYSYM,
-					InputUtil.UNKNOWN_KEY.getCode(), "category.goop"));
-	
-	static boolean clearPressed;
-	
-	public static void register()
-	{
-		ClientTickEvents.END_CLIENT_TICK.register(client ->
-		{
-			while (CLEAR_GOOP.wasPressed() && !clearPressed)
-			{
-				GoopParticle.removeAll();
-				clearPressed = true;
-			}
-			while (CLEAR_GOOP.wasPressed()); //remove stored presses
-			clearPressed = CLEAR_GOOP.isPressed();
-		});
-	}
+public class KeybindRegistry {
+    public static final KeyMapping CLEAR_GOOP = new KeyMapping(
+            "key.goop.clear",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.goop"
+    );
 }
+
+

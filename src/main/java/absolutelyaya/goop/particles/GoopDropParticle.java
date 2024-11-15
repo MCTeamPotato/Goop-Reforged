@@ -7,20 +7,24 @@ import absolutelyaya.goop.api.WaterHandling;
 import absolutelyaya.goop.client.GoopClient;
 import absolutelyaya.goop.client.GoopConfig;
 import absolutelyaya.goop.registries.ParticleRegistry;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.*;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -30,25 +34,25 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unchecked")
-public class GoopDropParticle extends SpriteBillboardParticle
+public class GoopDropParticle extends TextureSheetParticle
 {
-	protected final SpriteProvider spriteProvider;
-	protected final Vec3d color;
+	protected final SpriteSet spriteProvider;
+	protected final Vec3 color;
 	protected final boolean mature, drip, deform;
 	final float rotSpeed;
 	final float totalScale;
-	final Identifier effectOverride;
+	final ResourceLocation effectOverride;
 	final ExtraGoopData extraData;
 	final WaterHandling waterHandling;
 	
-	protected GoopDropParticle(ClientWorld clientWorld, Vec3d pos, Vec3d vel, SpriteProvider spriteProvider, Vec3d color, float scale, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling, Identifier effectOverride, ExtraGoopData extraData)
+	protected GoopDropParticle(ClientLevel clientWorld, Vec3 pos, Vec3 vel, SpriteSet spriteProvider, Vec3 color, float scale, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling, ResourceLocation effectOverride, ExtraGoopData extraData)
 	{
 		super(clientWorld, pos.x, pos.y, pos.z);
 		GoopConfig config = GoopClient.getConfig();
-		color = mature && GoopClient.recolorMature() ? Vec3d.unpackRgb(config.censorColor) : color;
-		setColor((float)color.getX(), (float)color.getY(), (float)color.getZ());
+		color = mature && GoopClient.recolorMature() ? Vec3.fromRGB24(config.censorColor) : color;
+		setColor((float)color.x(), (float)color.y(), (float)color.z());
 		this.color = color;
-		this.scale = scale - (scale > 1 ? 1.25f * (scale / 2) : 0f);
+		this.quadSize = scale - (scale > 1 ? 1.25f * (scale / 2) : 0f);
 		totalScale = scale;
 		this.spriteProvider = spriteProvider;
 		this.mature = mature;
@@ -56,64 +60,64 @@ public class GoopDropParticle extends SpriteBillboardParticle
 		this.deform = deform;
 		this.effectOverride = effectOverride;
 		this.extraData = extraData;
-		sprite = spriteProvider.getSprite(random);
-		gravityStrength = 1 + scale / 2;
-		maxAge = 300;
-		setVelocity(random.nextFloat() * 0.5 - 0.25, random.nextFloat() * 0.5, random.nextFloat() * 0.5 - 0.25);
-		collidesWithWorld = true;
+		sprite = spriteProvider.get(random);
+		gravity = 1 + scale / 2;
+		lifetime = 300;
+		setParticleSpeed(random.nextFloat() * 0.5 - 0.25, random.nextFloat() * 0.5, random.nextFloat() * 0.5 - 0.25);
+		hasPhysics = true;
 		this.waterHandling = waterHandling;
 		
 		rotSpeed = (random.nextFloat() - 0.5f) * 0.25f;
 		
-		if(vel.distanceTo(Vec3d.ZERO) > 0)
-			setVelocity(vel.x, vel.y, vel.z);
+		if(vel.distanceTo(Vec3.ZERO) > 0)
+			setParticleSpeed(vel.x, vel.y, vel.z);
 	}
 	
 	@Override
-	public ParticleTextureSheet getType()
+	public ParticleRenderType getRenderType()
 	{
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
 	}
 	
 	@Override
 	public void tick()
 	{
 		super.tick();
-		prevAngle = angle;
-		angle += rotSpeed;
-		if(world.getFluidState(new BlockPos((int)x, (int)y, (int)z)).isIn(FluidTags.LAVA))
-			markDead();
+		oRoll = roll;
+		roll += rotSpeed;
+		if(level.getFluidState(new BlockPos((int)x, (int)y, (int)z)).is(FluidTags.LAVA))
+			remove();
 		if(waterHandling == WaterHandling.IGNORE)
 			return;
-		if(world.isWater(new BlockPos((int)x, (int)y, (int)z)))
+		if(level.isWaterAt(new BlockPos((int)x, (int)y, (int)z)))
 		{
 			switch(waterHandling)
 			{
-				case REMOVE_PARTICLE -> markDead();
+				case REMOVE_PARTICLE -> remove();
 				case REPLACE_WITH_CLOUD_PARTICLE ->
 				{
-					world.addParticle(new DustParticleEffect(color.toVector3f(), totalScale * 2.5f), x, y, z,
+					level.addParticle(new DustParticleOptions(color.toVector3f(), totalScale * 2.5f), x, y, z,
 							random.nextFloat() * 0.1f, random.nextFloat() * 0.1f, random.nextFloat() * 0.1f);
-					markDead();
+					remove();
 				}
 			}
 		}
 	}
 	
-	ParticleType<GoopParticleEffect> getEffect(Identifier override)
+	ParticleType<GoopParticleEffect> getEffect(ResourceLocation override)
 	{
 		if(override == null)
-			return ParticleRegistry.GOOP;
-		RegistryKey<ParticleType<?>> registryKey = RegistryKey.of(RegistryKeys.PARTICLE_TYPE, override);
-		Optional<RegistryEntry.Reference<ParticleType<?>>> output = Registries.PARTICLE_TYPE.getReadOnlyWrapper().getOptional(registryKey);
-		return (ParticleType<GoopParticleEffect>)output.orElseThrow(() -> new InvalidIdentifierException(String.format("Identifier '%s' is not a Valid Particle Type", override))).value();
+			return ParticleRegistry.GOOP.get();
+		ResourceKey<ParticleType<?>> registryKey = ResourceKey.create(Registries.PARTICLE_TYPE, override);
+		Optional<Holder.Reference<ParticleType<?>>> output = BuiltInRegistries.PARTICLE_TYPE.asLookup().get(registryKey);
+		return (ParticleType<GoopParticleEffect>)output.orElseThrow(() -> new ResourceLocationException(String.format("ResourceLocation '%s' is not a Valid Particle Type", override))).value();
 	}
 	
 	Constructor<? extends AbstractGoopParticleEffect> getConstructor(ParticleType<?> type)
 	{
 		try
 		{
-			return ((IGoopEffectFactory)type.getParametersFactory()).getParticleEffectClass().getConstructor(Vec3d.class, float.class, Vec3d.class, boolean.class, WaterHandling.class, ExtraGoopData.class);
+			return ((IGoopEffectFactory)type.getDeserializer()).getParticleEffectClass().getConstructor(Vec3.class, float.class, Vec3.class, boolean.class, WaterHandling.class, ExtraGoopData.class);
 		}
 		catch (NoSuchMethodException e)
 		{
@@ -122,31 +126,31 @@ public class GoopDropParticle extends SpriteBillboardParticle
 		}
 	}
 	
-	void nextParticle(BlockPos pos, Vec3d dir)
+	void nextParticle(BlockPos pos, Vec3 dir)
 	{
-		VoxelShape shape = world.getBlockState(pos.subtract(new Vec3i(0, 0, 0))).getCollisionShape(world, pos);
+		VoxelShape shape = level.getBlockState(pos.subtract(new Vec3i(0, 0, 0))).getCollisionShape(level, pos);
 		if(!shape.isEmpty())
 		{
 			dir = dir.normalize();
 			
-			float height = (float)shape.getMax(Direction.Axis.Y);
-			Vec3d offset = new Vec3d(0.01, 0.01, 0.01);
+			float height = (float)shape.max(Direction.Axis.Y);
+			Vec3 offset = new Vec3(0.01, 0.01, 0.01);
 			offset = offset.add(dir.x < 0 ? 0 : 1, dir.y < 0 ? 0 : height, dir.z < 0 ? 0 : 1);
 			
 			try
 			{
 				if(dir.y != 0)
-					world.addParticle(getConstructor(getEffect(effectOverride))
+					level.addParticle(getConstructor(getEffect(effectOverride))
 											  .newInstance(color, totalScale * 2.5f, dir, mature, waterHandling, extraData).setDrip(drip).setDeform(deform),
 							x, pos.getY() + dir.y * offset.y, z,
 							0, 0, 0);
 				else if(dir.x != 0)
-					world.addParticle(getConstructor(getEffect(effectOverride))
+					level.addParticle(getConstructor(getEffect(effectOverride))
 											  .newInstance(color, totalScale * 2.5f, dir, mature, waterHandling, extraData).setDrip(drip).setDeform(deform),
 							pos.getX() + dir.x * offset.x, y, z,
 							0, 0, 0);
 				else if(dir.z != 0)
-					world.addParticle(getConstructor(getEffect(effectOverride))
+					level.addParticle(getConstructor(getEffect(effectOverride))
 											  .newInstance(color, totalScale * 2.5f, dir, mature, waterHandling, extraData).setDrip(drip).setDeform(deform),
 							x, y, pos.getZ() + dir.z * offset.z,
 							0, 0, 0);
@@ -161,16 +165,16 @@ public class GoopDropParticle extends SpriteBillboardParticle
 	@Override
 	public void move(double dx, double dy, double dz)
 	{
-		if (this.collidesWithWorld && (dx != 0.0 || dy != 0.0 || dz != 0.0) && dx * dx + dy * dy + dz * dz < MathHelper.square(100.0))
+		if (this.hasPhysics && (dx != 0.0 || dy != 0.0 || dz != 0.0) && dx * dx + dy * dy + dz * dz < Mth.square(100.0))
 		{
-			Iterator<VoxelShape> it = world.getBlockCollisions(null, getBoundingBox().stretch(new Vec3d(dx, dy, dz))).iterator();
+			Iterator<VoxelShape> it = level.getBlockCollisions(null, getBoundingBox().expandTowards(new Vec3(dx, dy, dz))).iterator();
 			VoxelShape closest = null;
 			float closestDist = Float.MAX_VALUE;
-			Vec3d pos = new Vec3d(x, y, z);
+			Vec3 pos = new Vec3(x, y, z);
 			while(it.hasNext())
 			{
 				VoxelShape shape = it.next();
-				Optional<Vec3d> closestPoint = shape.getClosestPointTo(pos);
+				Optional<Vec3> closestPoint = shape.closestPointTo(pos);
 				if(closestPoint.isEmpty())
 					continue;
 				float dist = (float)pos.distanceTo(closestPoint.get());
@@ -182,31 +186,31 @@ public class GoopDropParticle extends SpriteBillboardParticle
 			}
 			if(closest != null)
 			{
-				Vec3d point = closest.getBoundingBox().getCenter();
-				Vec3d vec3d = Entity.adjustMovementForCollisions(null, new Vec3d(dx, dy, dz), this.getBoundingBox(), this.world, List.of());
-				Vec3d diff = vec3d.subtract(new Vec3d(dx, dy, dz)).normalize();
+				Vec3 point = closest.bounds().getCenter();
+				Vec3 vec3d = Entity.collideBoundingBox(null, new Vec3(dx, dy, dz), this.getBoundingBox(), this.level, List.of());
+				Vec3 diff = vec3d.subtract(new Vec3(dx, dy, dz)).normalize();
 				
-				nextParticle(BlockPos.ofFloored(point.x, point.y, point.z), diff);
-				markDead();
+				nextParticle(BlockPos.containing(point.x, point.y, point.z), diff);
+				remove();
 			}
 		}
 		super.move(dx, dy, dz);
 	}
 	
-	public static class Factory implements ParticleFactory<GoopDropParticleEffect>
+	public static class Factory implements ParticleProvider<GoopDropParticleEffect>
 	{
-		protected final SpriteProvider spriteProvider;
+		protected final SpriteSet spriteProvider;
 		
-		public Factory(SpriteProvider spriteProvider)
+		public Factory(SpriteSet spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}
 		
 		@Nullable
 		@Override
-		public Particle createParticle(GoopDropParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
+		public Particle createParticle(GoopDropParticleEffect parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			return new GoopDropParticle(world, new Vec3d(x, y, z), new Vec3d(velocityX, velocityY, velocityZ),
+			return new GoopDropParticle(world, new Vec3(x, y, z), new Vec3(velocityX, velocityY, velocityZ),
 					spriteProvider, parameters.getColor(), parameters.getScale(), parameters.isMature(), parameters.isDrip(), parameters.isDeform(), parameters.getWaterHandling(),
 					parameters.getEffectOverride(), parameters.getExtraData());
 		}

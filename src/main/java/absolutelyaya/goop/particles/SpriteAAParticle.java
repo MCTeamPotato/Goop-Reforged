@@ -1,55 +1,55 @@
 package absolutelyaya.goop.particles;
 
-import net.minecraft.client.particle.SpriteBillboardParticle;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
-public abstract class SpriteAAParticle extends SpriteBillboardParticle
+public abstract class SpriteAAParticle extends TextureSheetParticle
 {
-	protected final SpriteProvider spriteProvider;
+	protected final SpriteSet spriteProvider;
 	
-	protected Vec3d scale;
+	protected Vec3 scale;
 	
-	protected SpriteAAParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider)
+	protected SpriteAAParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteProvider)
 	{
 		super(world, x, y, z);
 		float s = 0.1F * (this.random.nextFloat() * 0.5F + 0.5F) * 2.0F;
-		this.scale = new Vec3d(s, s, s);
+		this.scale = new Vec3(s, s, s);
 		this.spriteProvider = spriteProvider;
-		sprite = spriteProvider.getSprite(random);
+		sprite = spriteProvider.get(random);
 	}
 	
 	@Override
-	public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta)
+	public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta)
 	{
-		Vec3d camPos = camera.getPos();
-		Vec3d dir = new Vec3d(x, y, z).subtract(camPos).normalize();
-		float f = (float)(MathHelper.lerp(tickDelta, this.prevPosX, this.x) - camPos.getX());
-		float g = (float)(MathHelper.lerp(tickDelta, this.prevPosY, this.y) - camPos.getY());
-		float h = (float)(MathHelper.lerp(tickDelta, this.prevPosZ, this.z) - camPos.getZ());
+		Vec3 camPos = camera.getPosition();
+		Vec3 dir = new Vec3(x, y, z).subtract(camPos).normalize();
+			float f = (float)(Mth.lerp(tickDelta, this.xo, this.x) - camPos.x());
+		float g = (float)(Mth.lerp(tickDelta, this.yo, this.y) - camPos.y());
+		float h = (float)(Mth.lerp(tickDelta, this.zo, this.z) - camPos.z());
 		
-		Vec3d[] Vec3ds = new Vec3d[]{
-				new Vec3d(-1.0F, -1.0F, 0.0F),
-				new Vec3d(-1.0F, 1.0F, 0.0F),
-				new Vec3d(1.0F, 1.0F, 0.0F),
-				new Vec3d(1.0F, -1.0F, 0.0F)};
+		Vec3[] Vec3ds = new Vec3[]{
+				new Vec3(-1.0F, -1.0F, 0.0F),
+				new Vec3(-1.0F, 1.0F, 0.0F),
+				new Vec3(1.0F, 1.0F, 0.0F),
+				new Vec3(1.0F, -1.0F, 0.0F)};
 		
 		for(int k = 0; k < 4; ++k)
 		{
-			Vec3d Vec3d = Vec3ds[k];
-			Vec3d = Vec3d.rotateY((float)Math.atan2(dir.x, dir.z));
-			Vec3d = Vec3d.multiply(scale.getX(), scale.getY(), scale.getZ());
+			Vec3 Vec3d = Vec3ds[k];
+			Vec3d = Vec3d.yRot((float)Math.atan2(dir.x, dir.z));
+			Vec3d = Vec3d.multiply(scale.x(), scale.y(), scale.z());
 			Vec3ds[k] = Vec3d.add(f, g, h);
 		}
 		
-		int n = this.getBrightness(tickDelta);
-		vertexConsumer.vertex(Vec3ds[0].getX(), Vec3ds[0].getY(), Vec3ds[0].getZ()).texture(getMaxU(), getMaxV()).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-		vertexConsumer.vertex(Vec3ds[1].getX(), Vec3ds[1].getY(), Vec3ds[1].getZ()).texture(getMaxU(), getMinV()).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-		vertexConsumer.vertex(Vec3ds[2].getX(), Vec3ds[2].getY(), Vec3ds[2].getZ()).texture(getMinU(), getMinV()).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-		vertexConsumer.vertex(Vec3ds[3].getX(), Vec3ds[3].getY(), Vec3ds[3].getZ()).texture(getMinU(), getMaxV()).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+		int n = this.getLightColor(tickDelta);
+		vertexConsumer.vertex(Vec3ds[0].x(), Vec3ds[0].y(), Vec3ds[0].z()).uv(getU1(), getV1()).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(n).endVertex();
+		vertexConsumer.vertex(Vec3ds[1].x(), Vec3ds[1].y(), Vec3ds[1].z()).uv(getU1(), getV0()).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(n).endVertex();
+		vertexConsumer.vertex(Vec3ds[2].x(), Vec3ds[2].y(), Vec3ds[2].z()).uv(getU0(), getV0()).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(n).endVertex();
+		vertexConsumer.vertex(Vec3ds[3].x(), Vec3ds[3].y(), Vec3ds[3].z()).uv(getU0(), getV1()).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(n).endVertex();
 	}
 }

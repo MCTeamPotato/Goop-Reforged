@@ -2,34 +2,34 @@ package absolutelyaya.goop.particles;
 
 import absolutelyaya.goop.client.GoopClient;
 import absolutelyaya.goop.client.GoopConfig;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.ParticleTextureSheet;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class GoopStringParticle extends SpriteAAParticle
 {
-	protected GoopStringParticle(ClientWorld world, Vec3d pos, SpriteProvider spriteProvider, Vec3d color, float scale, boolean mature)
+	protected GoopStringParticle(ClientLevel world, Vec3 pos, SpriteSet spriteProvider, Vec3 color, float scale, boolean mature)
 	{
 		super(world, pos.x, pos.y - 0.25, pos.z, spriteProvider);
-		gravityStrength = random.nextFloat() * 0.25f + 0.1f;
-		maxAge = random.nextInt(15) + 20;
+		gravity = random.nextFloat() * 0.25f + 0.1f;
+		lifetime = random.nextInt(15) + 20;
 		GoopConfig config = GoopClient.getConfig();
-		color = mature && GoopClient.recolorMature() ? Vec3d.unpackRgb(config.censorColor) : color;
-		setColor((float)color.getX(), (float)color.getY(), (float)color.getZ());
-		this.scale = this.scale.multiply(scale);
-		collidesWithWorld = true;
+		color = mature && GoopClient.recolorMature() ? Vec3.fromRGB24(config.censorColor) : color;
+		setColor((float)color.x(), (float)color.y(), (float)color.z());
+		this.scale = this.scale.scale(scale);
+		hasPhysics = true;
 		alpha = 0;
 	}
 	
 	@Override
-	public ParticleTextureSheet getType()
+	public ParticleRenderType getRenderType()
 	{
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
 	}
 	
 	@Override
@@ -44,23 +44,23 @@ public class GoopStringParticle extends SpriteAAParticle
 	public void tick()
 	{
 		super.tick();
-		alpha = MathHelper.lerp((float)age / maxAge, 1.2f, 0f);
+		alpha = Mth.lerp((float)age / lifetime, 1.2f, 0f);
 	}
 	
-	public static class Factory implements ParticleFactory<GoopStringParticleEffect>
+	public static class Factory implements ParticleProvider<GoopStringParticleEffect>
 	{
-		protected final SpriteProvider spriteProvider;
+		protected final SpriteSet spriteProvider;
 		
-		public Factory(SpriteProvider spriteProvider)
+		public Factory(SpriteSet spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}
 		
 		@Nullable
 		@Override
-		public Particle createParticle(GoopStringParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
+		public Particle createParticle(GoopStringParticleEffect parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			return new GoopStringParticle(world, new Vec3d(x, y, z), spriteProvider, parameters.getColor(), parameters.getScale(), parameters.isMature());
+			return new GoopStringParticle(world, new Vec3(x, y, z), spriteProvider, parameters.getColor(), parameters.getScale(), parameters.isMature());
 		}
 	}
 }

@@ -2,16 +2,16 @@ package absolutelyaya.goop.particles;
 
 import absolutelyaya.goop.api.WaterHandling;
 import absolutelyaya.goop.client.GoopClient;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.ParticleTextureSheet;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -22,7 +22,7 @@ public class GoopParticle extends SurfaceAlignedParticle
 {
 	static Queue<GoopParticle> GOOP_QUEUE = new ArrayDeque<>();
 	
-	private final Vec3d color;
+	private final Vec3 color;
 	private final float size;
 	private final float normalAlpha;
 	private final int appearTicks;
@@ -30,13 +30,13 @@ public class GoopParticle extends SurfaceAlignedParticle
 	final WaterHandling waterHandling;
 	float rain;
 	
-	protected GoopParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, Vec3d color, float scale, Vec3d dir, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling)
+	protected GoopParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteProvider, Vec3 color, float scale, Vec3 dir, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling)
 	{
 		super(world, x, y, z, spriteProvider, color, scale, dir, deform);
-		this.maxAge = config.permanent ? Integer.MAX_VALUE : 200 + random.nextInt(100);
+		this.lifetime = config.permanent ? Integer.MAX_VALUE : 200 + random.nextInt(100);
 		this.alpha = Math.min(random.nextFloat() + 0.5f, 1);
-		this.color = mature && GoopClient.recolorMature() ? Vec3d.unpackRgb(config.censorColor) : color;
-		this.scale = 0;
+		this.color = mature && GoopClient.recolorMature() ? Vec3.fromRGB24(config.censorColor) : color;
+		this.quadSize = 0;
 		this.size = scale;
 		this.normalAlpha = alpha;
 		this.appearTicks = random.nextInt(4) + 3;
@@ -45,13 +45,13 @@ public class GoopParticle extends SurfaceAlignedParticle
 		this.waterHandling = waterHandling;
 		GOOP_QUEUE.add(this);
 		if(GOOP_QUEUE.size() > config.goopCap)
-			GOOP_QUEUE.remove().markDead();
+			GOOP_QUEUE.remove().remove();
 	}
 	
 	@Override
-	public ParticleTextureSheet getType()
+	public ParticleRenderType getRenderType()
 	{
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
 	}
 	
 	@Override
@@ -61,74 +61,74 @@ public class GoopParticle extends SurfaceAlignedParticle
 		
 		//scale / alpha animations
 		if(age <= appearTicks)
-			scale = MathHelper.clampedLerp(0f, size, ((float)age / appearTicks));
-		else if(age >= maxAge - 60 && !config.permanent)
+			quadSize = Mth.clampedLerp(0f, size, ((float)age / appearTicks));
+		else if(age >= lifetime - 60 && !config.permanent)
 		{
-			scale = MathHelper.clampedLerp(size, size * 0.5f, (age - (maxAge - 60)) / 60f);
-			alpha = MathHelper.clampedLerp(normalAlpha, 0f, (age - (maxAge - 60)) / 60f);
+			quadSize = Mth.clampedLerp(size, size * 0.5f, (age - (lifetime - 60)) / 60f);
+			alpha = Mth.clampedLerp(normalAlpha, 0f, (age - (lifetime - 60)) / 60f);
 		}
 		else
 		{
 			//Rain cleaning
 			if(GoopClient.getConfig().rainCleaning  && waterHandling != WaterHandling.IGNORE &&
-					   world.isRaining() && world.isSkyVisible(new BlockPos((int)x, (int)y, (int)z)))
+					level.isRaining() && level.canSeeSky(new BlockPos((int)x, (int)y, (int)z)))
 			{
 				rain = rain + 1f / 100f;
-				scale = MathHelper.clampedLerp(size, size * 1.25f, rain / 10f);
-				alpha = MathHelper.clampedLerp(normalAlpha, 0f, rain / 10f);
+				quadSize = Mth.clampedLerp(size, size * 1.25f, rain / 10f);
+				alpha = Mth.clampedLerp(normalAlpha, 0f, rain / 10f);
 				if(rain > 10f)
-					markDead();
+					remove();
 			}
 		}
 		//Ceiling Drips
-		if(drip && dir.getY() < 0 && random.nextInt(120) == 0)
-			world.addParticle(new GoopStringParticleEffect(color, 0.25f, mature),
-					x + random.nextFloat() * scale - scale / 2f, y, z + random.nextFloat() * scale - scale / 2f,
+		if(drip && dir.y() < 0 && random.nextInt(120) == 0)
+			level.addParticle(new GoopStringParticleEffect(color, 0.25f, mature),
+					x + random.nextFloat() * quadSize - quadSize / 2f, y, z + random.nextFloat() * quadSize - quadSize / 2f,
 					0, 0, 0);
 		//Fluid handling
-		if(world.getFluidState(new BlockPos((int)x, (int)y, (int)z)).isIn(FluidTags.LAVA))
-			markDead();
+		if(level.getFluidState(new BlockPos((int)x, (int)y, (int)z)).is(FluidTags.LAVA))
+			remove();
 		if(waterHandling == WaterHandling.IGNORE)
 			return;
-		if(world.isWater(new BlockPos((int)x, (int)y, (int)z)))
+		if(level.isWaterAt(new BlockPos((int)x, (int)y, (int)z)))
 		{
 			switch(waterHandling)
 			{
-				case REMOVE_PARTICLE -> markDead();
+				case REMOVE_PARTICLE -> remove();
 				case REPLACE_WITH_CLOUD_PARTICLE ->
 				{
-					world.addParticle(new DustParticleEffect(color.toVector3f(), scale), x, y, z,
+					level.addParticle(new DustParticleOptions(color.toVector3f(), quadSize), x, y, z,
 							random.nextFloat() * 0.1f, random.nextFloat() * 0.1f, random.nextFloat() * 0.1f);
-					markDead();
+					remove();
 				}
 			}
 		}
 	}
 	
 	@Override
-	public void markDead()
+	public void remove()
 	{
-		super.markDead();
+		super.remove();
 		GOOP_QUEUE.remove(this);
 	}
 	
 	public static void removeAll()
 	{
-		new ArrayList<>(GOOP_QUEUE).forEach(GoopParticle::markDead);
+		new ArrayList<>(GOOP_QUEUE).forEach(GoopParticle::remove);
 	}
 	
-	public static class Factory implements ParticleFactory<GoopParticleEffect>
+	public static class Factory implements ParticleProvider<GoopParticleEffect>
 	{
-		protected final SpriteProvider spriteProvider;
+		protected final SpriteSet spriteProvider;
 		
-		public Factory(SpriteProvider spriteProvider)
+		public Factory(SpriteSet spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}
 		
 		@Nullable
 		@Override
-		public Particle createParticle(GoopParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
+		public Particle createParticle(GoopParticleEffect parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
 			return new GoopParticle(world, x, y, z, spriteProvider, parameters.getColor(), parameters.getScale(), parameters.getDir(), parameters.isMature(),
 					parameters.isDrip(), parameters.isDeform(), parameters.getWaterHandling());

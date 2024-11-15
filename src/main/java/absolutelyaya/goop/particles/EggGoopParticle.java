@@ -1,32 +1,32 @@
 package absolutelyaya.goop.particles;
 
 import absolutelyaya.goop.api.WaterHandling;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class EggGoopParticle extends GoopParticle
 {
-	protected EggGoopParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, Vec3d color, float scale, Vec3d dir, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling)
+	protected EggGoopParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteProvider, Vec3 color, float scale, Vec3 dir, boolean mature, boolean drip, boolean deform, WaterHandling waterHandling)
 	{
 		super(world, x, y, z, spriteProvider, color, scale, dir, mature, drip, deform, waterHandling);
 	}
 	
-	public static class Factory implements ParticleFactory<EggGoopParticleEffect>
+	public static class Factory implements ParticleProvider<EggGoopParticleEffect>
 	{
-		protected final SpriteProvider spriteProvider;
+		protected final SpriteSet spriteProvider;
 		
-		public Factory(SpriteProvider spriteProvider)
+		public Factory(SpriteSet spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}
 		
 		@Nullable
 		@Override
-		public Particle createParticle(EggGoopParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
+		public Particle createParticle(EggGoopParticleEffect parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
 			return new EggGoopParticle(world, x, y, z, spriteProvider, parameters.getColor(), parameters.getScale(), parameters.getDir(),
 					parameters.isMature(), parameters.isDrip(), parameters.isDeform(), parameters.getWaterHandling());

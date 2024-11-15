@@ -2,8 +2,8 @@ package absolutelyaya.goop.api;
 
 import absolutelyaya.goop.Goop;
 import com.mojang.serialization.Codec;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * This Class purely exists for devs to extend and use for extra arguments needed for custom Particle Effects based on Goop.
@@ -18,7 +18,7 @@ public class ExtraGoopData
 	/**
 	 * Reads this ExtraGoopData from the given PacketByteBuffer
 	 */
-	public static ExtraGoopData read(PacketByteBuf buf)
+	public static ExtraGoopData read(FriendlyByteBuf buf)
 	{
 		return null;
 	}
@@ -26,18 +26,18 @@ public class ExtraGoopData
 	/**
 	 * When creating a new ExtraGoopData Type, override this with your unique Type Identifier and register it in the GoopEmitterRegistry.<br>
 	 * This will be used to get the correct packet reading method.
-	 * @see absolutelyaya.goop.api.GoopEmitterRegistry#registerExtraDataType(Identifier, Class)
+	 * @see absolutelyaya.goop.api.GoopEmitterRegistry#registerExtraDataType(ResourceLocation, Class)
 	 */
-	public static Identifier getExtraDataType()
+	public static ResourceLocation getExtraDataType()
 	{
-		return new Identifier(Goop.MOD_ID, "default");
+		return new ResourceLocation(Goop.MOD_ID, "default");
 	}
 	
 	/**
 	 * Writes this ExtraGoopData to the given PacketByteBuffer.
 	 */
-	public void write(PacketByteBuf buf)
+	public void write(FriendlyByteBuf buf)
 	{
-		buf.writeIdentifier(getExtraDataType());
+		buf.writeResourceLocation(getExtraDataType());
 	}
 }

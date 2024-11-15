@@ -1,22 +1,22 @@
 package absolutelyaya.goop.api;
 
 import absolutelyaya.goop.Goop;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
 public class GoopEmitterRegistry
 {
-	static final Map<Identifier, Class<ExtraGoopData>> ExtraDataTypes = new HashMap<>();
+	static final Map<ResourceLocation, Class<ExtraGoopData>> ExtraDataTypes = new HashMap<>();
 	
 	static final Map<EntityType<? extends LivingEntity>, List<DamageGoopEmitter<? extends LivingEntity>>> DamageGoopEmitters = new HashMap<>();
 	static final Map<EntityType<? extends LivingEntity>, List<DeathGoopEmitter<? extends LivingEntity>>> DeathGoopEmitters = new HashMap<>();
 	static final Map<EntityType<? extends LivingEntity>, List<LandingGoopEmitter<? extends LivingEntity>>> LandingGoopEmitters = new HashMap<>();
-	static final Map<EntityType<? extends ProjectileEntity>, List<ProjectileHitGoopEmitter<? extends ProjectileEntity>>> ProjectileHitGoopEmitters = new HashMap<>();
+	static final Map<EntityType<? extends Projectile>, List<ProjectileHitGoopEmitter<? extends Projectile>>> ProjectileHitGoopEmitters = new HashMap<>();
 	static boolean frozen = false;
 	
 	/**
@@ -33,7 +33,7 @@ public class GoopEmitterRegistry
 			Goop.LogWarning("Tried to register a new Goop Emitter after Registry was frozen. Please only register Goop Emitters via the \"goop\" Entrypoint!");
 			return;
 		}
-		if(emitter instanceof DamageGoopEmitter<?> damageEmitter)
+ 		if(emitter instanceof DamageGoopEmitter<?> damageEmitter)
 			registerEmitterInternal(DamageGoopEmitters, entityType, damageEmitter);
 		else if (emitter instanceof LandingGoopEmitter<?> landingEmitter)
 			registerEmitterInternal(LandingGoopEmitters, entityType, landingEmitter);
@@ -48,7 +48,7 @@ public class GoopEmitterRegistry
 	 * @see absolutelyaya.goop.api.DamageGoopEmitter
 	 * @see absolutelyaya.goop.api.LandingGoopEmitter
 	 */
-	public static void registerProjectileEmitter(EntityType<? extends ProjectileEntity> entityType, IGoopEmitter emitter)
+	public static void registerProjectileEmitter(EntityType<? extends Projectile> entityType, IGoopEmitter emitter)
 	{
 		if(frozen)
 		{
@@ -69,8 +69,8 @@ public class GoopEmitterRegistry
 		Goop.LogInfo(String.format("Registered new Goop Emitter for EntityType '%s'", entityType));
 	}
 	
-	private static <T extends IGoopEmitter> void registerProjectileEmitterInternal(Map<EntityType<? extends ProjectileEntity>, List<T>> map,
-																		 EntityType<? extends ProjectileEntity> entityType,
+	private static <T extends IGoopEmitter> void registerProjectileEmitterInternal(Map<EntityType<? extends Projectile>, List<T>> map,
+																		 EntityType<? extends Projectile> entityType,
 																		 T emitter)
 	{
 		if(!map.containsKey(entityType))
@@ -111,7 +111,7 @@ public class GoopEmitterRegistry
 		return Optional.of(ProjectileHitGoopEmitters.get(entityType));
 	}
 	
-	public static void registerExtraDataType(Identifier id, Class<ExtraGoopData> clazz)
+	public static void registerExtraDataType(ResourceLocation id, Class<ExtraGoopData> clazz)
 	{
 		if(ExtraDataTypes.containsKey(id))
 		{
@@ -121,7 +121,7 @@ public class GoopEmitterRegistry
 		ExtraDataTypes.put(id, clazz);
 	}
 	
-	public static Class<ExtraGoopData> getExtraDataType(Identifier identifier)
+	public static Class<ExtraGoopData> getExtraDataType(ResourceLocation identifier)
 	{
 		if(ExtraDataTypes.containsKey(identifier))
 			return ExtraDataTypes.get(identifier);
@@ -137,6 +137,6 @@ public class GoopEmitterRegistry
 	
 	static
 	{
-		registerExtraDataType(new Identifier(Goop.MOD_ID, "default"), ExtraGoopData.class);
+		registerExtraDataType(new ResourceLocation(Goop.MOD_ID, "default"), ExtraGoopData.class);
 	}
 }

@@ -1,0 +1,44 @@
+{
+  "modmenu.descriptionTranslation.goop": "为血液、史莱姆或其他酷炫的视觉效果添加飞溅粒子效果",
+  "yaya.support.kofi": "Support yayas hijinx",
+
+  "category.goop": "Goop",
+  "key.goop.clear": "清除 Goop",
+
+  "text.autoconfig.goop.title": "Goop 配置",
+
+  "text.autoconfig.goop.category.default": "Goop",
+  "text.autoconfig.goop.category.debug": "调试",
+
+  "text.autoconfig.goop.option.fancyGoop": "炫酷 Goop",
+  "text.autoconfig.goop.option.fancyGoop.@Tooltip": "禁用以获得更好的性能，启用以获得更酷的 Goop！",
+
+  "text.autoconfig.goop.option.wrapToEdges": "包裹到边缘",
+  "text.autoconfig.goop.option.wrapToEdges.@Tooltip": "Goop 是否应包裹到方块的边缘。",
+
+  "text.autoconfig.goop.option.randomRot": "随机旋转",
+  "text.autoconfig.goop.option.randomRot.@Tooltip": "Goop 是否应随机旋转。",
+
+  "text.autoconfig.goop.option.censorMature": "审查成人内容",
+  "text.autoconfig.goop.option.censorMature.@Tooltip": "将标记为成人内容的 Goop VFX 的颜色替换为审查颜色。",
+
+  "text.autoconfig.goop.option.censorMode": "审查模式",
+  "text.autoconfig.goop.option.censorMode.@Tooltip": "如果启用了成人内容审查，如何进行审查。",
+
+  "text.autoconfig.goop.option.censorColor": "审查颜色",
+
+  "text.autoconfig.goop.option.permanent": "永久",
+  "text.autoconfig.goop.option.permanent.@Tooltip": "防止 Goop 褪色。如果启用，Goop 只会在被卸载或达到 Goop 上限时消失。",
+
+  "text.autoconfig.goop.option.goopCap": "Goop 上限",
+  "text.autoconfig.goop.option.goopCap.@Tooltip": "限制同时存在的 Goop 水坑数量。",
+
+  "text.autoconfig.goop.option.rainCleaning": "雨水清洗",
+  "text.autoconfig.goop.option.rainCleaning.@Tooltip": "下雨时清洗天空下的 Goop 水坑。",
+
+  "text.autoconfig.goop.option.goopDebug": "Goop 调试",
+  "text.autoconfig.goop.option.goopDebug.@Tooltip": "[警告] 非常卡顿 | 添加额外的粒子以显示 Goop 水坑的顶点信息",
+
+  "text.autoconfig.goop.option.showDev": "显示开发者粒子",
+  "text.autoconfig.goop.option.showDev.@Tooltip": "是否显示标记为开发者内容的发射器。（例如，所有示例发射器都标记为开发者内容）"
+}

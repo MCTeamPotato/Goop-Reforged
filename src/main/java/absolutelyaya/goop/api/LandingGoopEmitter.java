@@ -1,6 +1,6 @@
 package absolutelyaya.goop.api;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector4f;
 

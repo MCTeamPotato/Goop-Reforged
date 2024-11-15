@@ -1,9 +1,11 @@
 package absolutelyaya.goop.client;
 
 import absolutelyaya.goop.Goop;
+import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import net.minecraft.client.gui.screens.Screen;
 
 @Config(name = Goop.MOD_ID)
 @Config.Gui.Background("minecraft:textures/block/light_blue_terracotta.png")
@@ -32,4 +34,8 @@ public class GoopConfig implements ConfigData
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean goopDebug = false;
+
+	public static Screen getConfigScreen(Screen parent){
+		return AutoConfig.getConfigScreen(GoopConfig.class, parent).get();
+	}
 }

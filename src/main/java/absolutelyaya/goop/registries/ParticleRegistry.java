@@ -5,24 +5,31 @@ import absolutelyaya.goop.particles.EggGoopParticleEffect;
 import absolutelyaya.goop.particles.GoopDropParticleEffect;
 import absolutelyaya.goop.particles.GoopParticleEffect;
 import absolutelyaya.goop.particles.GoopStringParticleEffect;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.Registries;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
-public class ParticleRegistry
-{
-	public static final ParticleType<GoopDropParticleEffect> GOOP_DROP =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Goop.MOD_ID, "goop_drop"),
-					FabricParticleTypes.complex(new GoopDropParticleEffect.Factory()));
-	public static final ParticleType<GoopParticleEffect> GOOP =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Goop.MOD_ID, "goop"),
-					FabricParticleTypes.complex(new GoopParticleEffect.Factory()));
-	public static final ParticleType<GoopStringParticleEffect> GOOP_STRING =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Goop.MOD_ID, "goop_string"),
-					FabricParticleTypes.complex(new GoopStringParticleEffect.Factory()));
-	public static final ParticleType<EggGoopParticleEffect> EGG_GOOP =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Goop.MOD_ID, "egg_goop"),
-					FabricParticleTypes.complex(new EggGoopParticleEffect.Factory()));
+import java.util.function.Function;
+
+public class ParticleRegistry {
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_REGISTER = DeferredRegister.create(Registries.PARTICLE_TYPE, Goop.MOD_ID);
+    public static final RegistryObject<ParticleType<GoopDropParticleEffect>> GOOP_DROP = register("goop_drop", false, new GoopDropParticleEffect.Factory(), type -> GoopDropParticleEffect.CODEC);
+    public static final RegistryObject<ParticleType<GoopParticleEffect>> GOOP = register("goop", false, new GoopParticleEffect.Factory(), type -> GoopParticleEffect.CODEC);
+    public static final RegistryObject<ParticleType<GoopStringParticleEffect>> GOOP_STRING = register("goop_string", false, new GoopStringParticleEffect.Factory(), type -> GoopStringParticleEffect.CODEC);
+    public static final RegistryObject<ParticleType<EggGoopParticleEffect>> EGG_GOOP = register("egg_goop", false, new EggGoopParticleEffect.Factory(), type -> EggGoopParticleEffect.CODEC);
+
+    private static <T extends ParticleOptions> RegistryObject<ParticleType<T>> register(String pKey, boolean pOverrideLimiter, ParticleOptions.Deserializer<T> pDeserializer, final Function<ParticleType<T>, Codec<T>> pCodecFactory) {
+        return PARTICLE_REGISTER.register(pKey, () -> new ParticleType<>(pOverrideLimiter, pDeserializer) {
+            public @NotNull Codec<T> codec() {
+                return pCodecFactory.apply(this);
+            }
+        });
+    }
+    public static void registerProviders(RegisterParticleProvidersEvent event) {
+    }
 }

@@ -1,11 +1,11 @@
 package absolutelyaya.goop.mixin;
 
 import absolutelyaya.goop.api.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.world.World;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,15 +19,15 @@ import java.util.Optional;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity
 {
-	public LivingEntityMixin(EntityType<?> type, World world)
+	public LivingEntityMixin(EntityType<?> type, Level world)
 	{
 		super(type, world);
 	}
 	
-	@Inject(method = "damage", at = @At(value = "RETURN"))
+	@Inject(method = "hurt", at = @At(value = "RETURN"))
 	void onDamaged(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(getWorld().isClient)
+		if(level().isClientSide)
 			return;
 		Optional<List<DamageGoopEmitter<?>>> emitters = GoopEmitterRegistry.getDamageEmitters((EntityType<? extends LivingEntity>)getType());
 		if(emitters.isEmpty())
@@ -36,10 +36,10 @@ public abstract class LivingEntityMixin extends Entity
 			emitter.emit((LivingEntity)(Object)this, new DamageData(source, amount));
 	}
 	
-	@Inject(method = "onDeath", at = @At(value = "RETURN"))
+	@Inject(method = "die", at = @At(value = "RETURN"))
 	void onDeath(DamageSource damageSource, CallbackInfo ci)
 	{
-		if(getWorld().isClient)
+		if(level().isClientSide)
 			return;
 		Optional<List<DeathGoopEmitter<?>>> emitters = GoopEmitterRegistry.getDeathEmitters((EntityType<? extends LivingEntity>)getType());
 		if(emitters.isEmpty())
@@ -49,21 +49,21 @@ public abstract class LivingEntityMixin extends Entity
 	}
 	
 	@Override
-	public void onLanding()
+	public void resetFallDistance()
 	{
-		if (getWorld().isClient || fallDistance < 0.05)
+		if (level().isClientSide || fallDistance < 0.05)
 		{
-			super.onLanding();
+			super.resetFallDistance();
 			return;
 		}
 		Optional<List<LandingGoopEmitter<?>>> emitters = GoopEmitterRegistry.getLandingEmitters((EntityType<? extends LivingEntity>) getType());
 		if (emitters.isEmpty())
 		{
-			super.onLanding();
+			super.resetFallDistance();
 			return;
 		}
 		for (LandingGoopEmitter emitter : emitters.get())
 			emitter.emit((LivingEntity) (Object) this, fallDistance);
-		super.onLanding();
+		super.resetFallDistance();
 	}
 }
