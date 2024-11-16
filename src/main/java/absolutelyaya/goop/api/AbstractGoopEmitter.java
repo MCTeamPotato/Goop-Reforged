@@ -95,11 +95,11 @@ public abstract class AbstractGoopEmitter<T extends Entity> implements IGoopEmit
         buf.writeBoolean(mature);
         buf.writeBoolean(drip);
         buf.writeBoolean(deform);
-        buf.writeEnum(waterHandling);
         buf.writeBoolean(dev);
-        boolean b = particleEffectOverride != null;
-        buf.writeBoolean(b);
-        if (b) {
+        buf.writeEnum(waterHandling);
+        boolean isOverridden = particleEffectOverride != null;
+        buf.writeBoolean(isOverridden);
+        if (isOverridden) {
             buf.writeResourceLocation(particleEffectOverride);
             extraGoopData.write(buf);
         }
@@ -117,7 +117,11 @@ public abstract class AbstractGoopEmitter<T extends Entity> implements IGoopEmit
                                 mature,
                                 drip,
                                 deform,
-                                waterHandling
+                                dev,
+                                waterHandling,
+                                isOverridden,
+                                particleEffectOverride,
+                                extraGoopData
                         )
                 );
             }

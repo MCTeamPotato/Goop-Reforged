@@ -17,15 +17,17 @@ public class PacketRegistry {
 
 //    public static void registerClient() {
 //        ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.EMIT_GOOP_PACKET_ID, ((client, handler, buf, sender) -> {
-//            if (buf.readBoolean() && !GoopClient.getConfig().showDev)
+//            if (buf.dev() && !GoopClient.getConfig().showDev)
 //                return;
-//            Vec3 pos = new Vec3(buf.readVector3f());
-//            int color = buf.readInt();
+//            Vec3 pos = new Vec3(buf.pos());
+//            int color = buf.color();
 //            Vec3 baseVel = new Vec3(buf.readVector3f());
 //            float randomness = buf.readFloat();
 //            int amount = buf.readInt();
 //            float size = buf.readFloat();
-//            boolean mature = buf.readBoolean(), drip = buf.readBoolean(), deform = buf.readBoolean();
+//            boolean mature = buf.readBoolean(),
+//                    drip = buf.readBoolean(),
+//                    deform = buf.readBoolean();
 //            WaterHandling waterHandling = buf.readEnum(WaterHandling.class);
 //
 //            if (mature && GoopClient.hideMature())

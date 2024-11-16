@@ -20,17 +20,18 @@ public class GoopConfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	public boolean randomRot = true;
 	@ConfigEntry.Gui.Tooltip
-	public boolean censorMature = false;
-	@ConfigEntry.Gui.Tooltip
-	public CensorMode censorMode = CensorMode.RECOLOR;
-	@ConfigEntry.ColorPicker
-	public int censorColor = 0xff0fc3;
-	@ConfigEntry.Gui.Tooltip
 	public boolean permanent = false;
 	@ConfigEntry.Gui.Tooltip
 	public boolean rainCleaning = true;
 	@ConfigEntry.Gui.Tooltip
 	public int goopCap = 320;
+	@ConfigEntry.Gui.Tooltip
+	public boolean censorMature = false;
+	@ConfigEntry.Gui.Tooltip
+	@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+	public CensorMode censorMode = CensorMode.RECOLOR;
+	@ConfigEntry.ColorPicker
+	public int censorColor = 0xff0fc3;
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean goopDebug = false;
