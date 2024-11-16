@@ -10,6 +10,7 @@ import absolutelyaya.goop.particles.GoopParticle;
 import absolutelyaya.goop.particles.GoopStringParticle;
 import absolutelyaya.goop.registries.KeybindRegistry;
 import absolutelyaya.goop.registries.ParticleRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -36,6 +37,10 @@ public class ModEvent {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void registerParticles(RegisterParticleProvidersEvent event) {
+//        Minecraft.getInstance().particleEngine.register(ParticleRegistry.GOOP_DROP.get(), GoopDropParticle.Factory::new);
+//        Minecraft.getInstance().particleEngine.register(ParticleRegistry.GOOP.get(), GoopParticle.Factory::new);
+//        Minecraft.getInstance().particleEngine.register(ParticleRegistry.GOOP_STRING.get(), GoopStringParticle.Factory::new);
+//        Minecraft.getInstance().particleEngine.register(ParticleRegistry.EGG_GOOP.get(), EggGoopParticle.Factory::new);
         event.registerSpriteSet(ParticleRegistry.GOOP_DROP.get(), GoopDropParticle.Factory::new);
         event.registerSpriteSet(ParticleRegistry.GOOP.get(), GoopParticle.Factory::new);
         event.registerSpriteSet(ParticleRegistry.GOOP_STRING.get(), GoopStringParticle.Factory::new);

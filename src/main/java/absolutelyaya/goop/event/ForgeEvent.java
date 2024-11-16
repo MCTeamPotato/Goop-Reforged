@@ -9,11 +9,13 @@ import absolutelyaya.goop.registries.KeybindRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.joml.Vector3f;
 
 import java.util.logging.Level;
 
@@ -31,24 +33,20 @@ public class ForgeEvent {
         clearPressed = KeybindRegistry.CLEAR_GOOP.isDown();
     }
 
-//    @SubscribeEvent
-//    public static void summonParticle(PlayerInteractEvent.RightClickBlock event){
-//        if (event.getLevel() instanceof ClientLevel level){
-//            Minecraft mc = Minecraft.getInstance();
-//            Vec3 vel = Vec3.ZERO.offsetRandom(mc.level.random, 1);
-//            BlockPos blockPos = event.getPos();
-//            level.addParticle(new GoopDropParticleEffect(
-//                        Vec3.fromRGB24(2927163),
-//                        1,
-//                        false,
-//                        WaterHandling.REPLACE_WITH_CLOUD_PARTICLE),
-//                    blockPos.getX(),
-//                    blockPos.getY(),
-//                    blockPos.getZ(),
-//                    vel.x,
-//                    vel.y,
-//                    vel.z
-//            );
-//        }
-//    }
+    @SubscribeEvent
+    public static void summonParticle(PlayerInteractEvent.RightClickBlock event){
+        if (event.getLevel() instanceof ClientLevel level){
+            Minecraft mc = Minecraft.getInstance();
+            Vec3 vel = Vec3.ZERO.offsetRandom(mc.level.random, 1);
+            BlockPos blockPos = event.getPos();
+            level.addParticle(new DustParticleOptions(new Vector3f(1f, 1f, 1f), 1f),
+                    blockPos.getX(),
+                    blockPos.getY(),
+                    blockPos.getZ(),
+                    vel.x,
+                    vel.y,
+                    vel.z
+            );
+        }
+    }
 }

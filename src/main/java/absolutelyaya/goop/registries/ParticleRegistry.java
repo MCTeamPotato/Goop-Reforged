@@ -8,6 +8,7 @@ import absolutelyaya.goop.particles.GoopStringParticleEffect;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -29,7 +30,5 @@ public class ParticleRegistry {
                 return pCodecFactory.apply(this);
             }
         });
-    }
-    public static void registerProviders(RegisterParticleProvidersEvent event) {
     }
 }

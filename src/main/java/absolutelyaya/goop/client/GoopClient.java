@@ -5,7 +5,7 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 
 public class GoopClient {
-    static ConfigHolder<GoopConfig> config;
+    static ConfigHolder<GoopConfig> config = AutoConfig.getConfigHolder(GoopConfig.class);
 
     public static GoopConfig getConfig() {
         return config.getConfig();
