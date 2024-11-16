@@ -79,6 +79,7 @@ mixin {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    maven { url 'https://jitpack.io' }
     maven { url "https://maven.shedaniel.me/" }
 }
 

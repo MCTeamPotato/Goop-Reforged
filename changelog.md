@@ -4,3 +4,4 @@
 - Added Random Rotation Setting
 - Added Keybind for clearing all Goop
 - Goop now works on all minor 1.20 versions
+- Goop now works on Forge

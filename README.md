@@ -1,5 +1,6 @@
+**[中文版本在这](README_ZH.md)**  
 # Goop
-Originally released as part of [ULTRACRAFT](https://github.com/absolutelyaya/ultracraft), Goop is now a standalone Library. It can be used to easily implement Slime and Splatter Visual Effects. There have been some major improvements since its debut in ULTRACRAFT as well.
+Originally released as part of [ULTRACRAFT](https://github.com/absolutelyaya/ultracraft), Goop is now a standalone Library. It can be used to easily implement Slime and Splatter Visual Effects. There have been some major improvements since its debut in ULTRACRAFT as well.  
 
 ## Planned Future Features
 I don't know when I'll work on these, but they're things I definitely want to do eventually:
@@ -20,19 +21,18 @@ repositories {
 }
 
 dependencies {
-    modImplementation(include 'com.github.absolutelyaya:goop:fabric-1.20.1-v0.2')
+    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-0.3')
 }
 ```
 And that's pretty much it. You can now use the Goop Particles as you want; You can spawn them like any other particle; or we do something a bit cleaner.
 
 ## Registering Emitters
-Alright, now that you got the dependency imported, we need to add a new Entrypoint. First, create a class that implements the ``GoopInitalizer`` Interface.
-Then go to your ``mod.json`` and add it as the ``goop`` entrypoint like this:
+Alright, now that you've imported the dependencies, we need to add a new entry point. First, create a class that implements the ``GoopInitializer`` interface.
+Then, register it to the mod event bus like this:
 ```
-"entrypoints": {
-  "goop": [
-    "absolutelyaya.goop.api.Examples"
-  ]
+@SubscribeEvent
+public static void onCommonSetup(FMLCommonSetupEvent event) {
+    new Examples().registerGoopEmitters();
 }
 ```
 ^ That is where this mods Example emitters are registered. ^<br>
@@ -43,7 +43,7 @@ Let's make Slimes a bit more satisfying. For this we will first register a "Dama
 ### Damage Emitters
 Go to your Goop Initializer Class. This next bit of Code is a bit intimidating, but once you understand how it works, I'm sure you'll be able to use it easily.
 ```
-GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<SlimeEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<Slime>(
 		(slime, data) -> 0x2caa3b,
 		(slime, data) -> new Vector4f(0f, 0f, 0f, MathHelper.clamp(data.amount() / 8f, 0.25f, 2f)),
 		(slime, data) -> data.source().isIn(TagRegistry.PHYSICAL) ? Math.round(MathHelper.clamp(data.amount() / 2f, 2f, 12f)) : 0,
@@ -67,7 +67,7 @@ Death Emitters "data" is only the Fatal DamageSource.
 ```
 //This causes Snow Golems to melt into blue Goop upon Death.
 //Since the particle is supposed to resemble water, it will simply disappear when making content with actual Water.
-GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<SnowGolemEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<SnowGolem>(
 		(snowGolem, data) -> 0x4690da,
 		(snowGolem, data) -> new Vector4f(0f, 0f, 0f, 0.5f),
 		(snowGolem, data) -> 2 + snowGolem.getRandom().nextInt(4),
@@ -79,7 +79,7 @@ Water Handling will be looked at a bit further down; I just didn't want to remov
 Going back to Slimes, this emitter will make them leave behind a trail of goop splodges. Landing Emitters "data" is a float representing how far the entity fell before landing.
 ```
 //This causes slimes to leave behind splodges of Green Goop when landing from a jump.
-GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<SlimeEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<Slime>(
 		(slime, height) -> 0x2caa3b,
 		(slime, height) -> new Vector4f(0f, -0f, 0f, 0.1f),
 		(slime, height) -> 1,
@@ -91,7 +91,7 @@ The only kind of interesting thing about this example, is that it uses data from
 Projectile emitters data is the HitResult of the Projectile.
 ```
 //Makes Eggs leave behind... egg.. when thrown at something.
-GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitGoopEmitter<EggEntity>(
+GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitGoopEmitter<ThrownEgg>(
 		(egg, data) -> 0xffffff,
 		(egg, data) -> {
 			Vec3d vel = egg.getVelocity();
@@ -99,7 +99,7 @@ GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitG
 		},
 		(egg, data) -> 1,
 		(egg, data) -> 0.5f
-).noDrip().setParticleEffectOverride(new Identifier(Goop.MOD_ID, "egg_goop"), new ExtraGoopData()));
+).noDrip().setParticleEffectOverride(new ResourceLocation(Goop.MOD_ID, "egg_goop"), new ExtraGoopData()));
 ```
 Since ProjectileEntities aren't LivingEntities, Projectile Emitters use a different register method (``GoopEmitterRegistry#registerProjectileEmitter``).<br>
 "Effect Overrides" will be explained a bit further down.
@@ -126,7 +126,7 @@ You set an Emitters Water Handling type using ``.setWaterHandling(WaterHandling.
 ### Effect Overrides
 Oh boy. This is the most advanced feature in the Library, so I'll assume you have some experience adding your own Particles already.<br>
 Alright, start by Making a new Particle extending ``GoopParticle`` and a new ParticleEffect extending ``GoopParticleEffect``.<br><br>
-**If** your custom Effect needs more data than normal Goop, then also create a class extending ``ExtraGoopData``. You then need to register this new "Extra Data Type" in the GoopInitalizer using ``GoopEmitterRegistry#registerExtraDataType(Identifier, Class)``.<br><br>
-Alright, now that you have made your own Goop Particle and an Emitter intending to use it, put ``.setParticleEffectOverride(new Identifier("examplemod", "coolgoop"), new ExtraGoopData())`` right behind the Emiters Instantiation. Replace the Identifier with your Particles and **if** you need your own additional arguments for your effect, replace ``new ExtraGoopData()`` with an instantiation of your own Extra Data Type.<br>
+**If** your custom Effect needs more data than normal Goop, then also create a class extending ``ExtraGoopData``. You then need to register this new "Extra Data Type" in the GoopInitalizer using ``GoopEmitterRegistry#registerExtraDataType(ResourceLocation, Class)``.<br><br>
+Alright, now that you have made your own Goop Particle and an Emitter intending to use it, put ``.setParticleEffectOverride(new ResourceLocation("examplemod", "coolgoop"), new ExtraGoopData())`` right behind the Emiters Instantiation. Replace the ResourceLocation with your Particles and **if** you need your own additional arguments for your effect, replace ``new ExtraGoopData()`` with an instantiation of your own Extra Data Type.<br>
 **Keep in mind that the constructor of your Goop Particle has to be the exact same as Default Goop.**<br><br>
 And yea, that should be it! I look forward to seeing what you'll do with these Particle VFX.

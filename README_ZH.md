@@ -27,26 +27,23 @@ repositories {
 }
 
 dependencies {
-    modImplementation(include 'com.github.absolutelyaya:goop:fabric-1.20.1-v0.2')
+    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-0.3')
 }
 ```
 
 就是这么简单。现在你可以像使用其他粒子一样使用 Goop 粒子；或者我们做得更干净一些。
 
 ## 注册发射器
-
 好，现在你已经导入了依赖，我们需要添加一个新的入口点。首先，创建一个实现 ``GoopInitalizer`` 接口的类。
-然后，打开你的 ``mod.json`` 并将其添加为 ``goop`` 入口点，像这样：
-
+然后将其注册到模组总线上，像这样：
 ```
-  "entrypoints": {
-    "goop": [
-      "absolutelyaya.goop.api.Examples"
-    ]
-  }
+@SubscribeEvent
+public static void onCommonSetup(FMLCommonSetupEvent event) {
+    new Examples().registerGoopEmitters();
+}
 ```
 
-^ 这就是该模组示例发射器注册的地方。 ^<br>
+ 这就是该模组示例发射器注册的地方。 <br>
 如果你只是想看看一些快速的示例发射器，可以查看 ``Examples`` 类。
 
 既然我没有被一些快速且混乱的免费示例代码分散注意力，接着往下看：<br>
@@ -58,7 +55,7 @@ Goop（有些例外）。
 前往你的 Goop 初始化器类。以下这段代码可能有点吓人，但一旦你理解它的工作原理，我相信你能轻松使用它。
 
 ```
-GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<SlimeEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<Slime>(
 		(slime, data) -> 0x2caa3b,
 		(slime, data) -> new Vector4f(0f, 0f, 0f, MathHelper.clamp(data.amount() / 8f, 0.25f, 2f)),
 		(slime, data) -> data.source().isIn(TagRegistry.PHYSICAL) ? Math.round(MathHelper.clamp(data.amount() / 2f, 2f, 12f)) : 0,
@@ -88,7 +85,7 @@ GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<Slim
 ```
 //这会导致雪傀儡在死亡时化成蓝色 Goop。
 //由于粒子是模拟水的效果，它将在与实际水接触时消失。
-GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<SnowGolemEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<SnowGolem>(
 		(snowGolem, data) -> 0x4690da,
 		(snowGolem, data) -> new Vector4f(0f, 0f, 0f, 0.5f),
 		(snowGolem, data) -> 2 + snowGolem.getRandom().nextInt(4),
@@ -104,7 +101,7 @@ GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<
 
 ```
 //这会导致史莱姆在跳跃后降落时留下绿色 Goop 飞溅。
-GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<SlimeEntity>(
+GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<Slime>(
 		(slime, height) -> 0x2caa3b,
 		(slime, height) -> new Vector4f(0f, -0f, 0f, 0.1f),
 		(slime, height) -> 1,
@@ -120,15 +117,15 @@ GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<Sli
 
 ```
 //当鸡蛋投掷到某物上时，它会留下...鸡蛋的 Goop。
-GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitGoopEmitter<EggEntity>(
+GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitGoopEmitter<ThrownEgg>(
 		(egg, data) -> 0xffffff,
 		(egg, data) -> {
-			Vec3d vel = egg.getVelocity();
+			Vec3d vel = egg.getDeltaMovement();
 			return new Vector4f((float)vel.x, (float)vel.y, (float)vel.z, 0f);
 		},
 		(egg, data) -> 1,
 		(egg, data) -> 0.5f
-).noDrip().setParticleEffectOverride(new Identifier(Goop.MOD_ID, "egg_goop"), new ExtraGoopData()));
+).noDrip().setParticleEffectOverride(new ResourceLocation(Goop.MOD_ID, "egg_goop"), new ExtraGoopData()));
 ```
 
 由于投射物实体不是生物实体，投射物发射器使用了不同的注册方法（``GoopEmitterRegistry#registerProjectileEmitter``）。<br>
@@ -174,10 +171,10 @@ GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitG
 哦，这可能是该库中最复杂的功能，因此假设你已经有一定的自定义粒子效果经验。
 首先，创建一个继承自 `GoopParticle` 的新粒子，并创建一个继承自 `GoopParticleEffect` 的新粒子效果。
 **如果**你的自定义效果需要比普通 Goop 更多的数据，那么你还需要创建一个继承自 `ExtraGoopData`
-的类。然后，你需要通过 `GoopEmitterRegistry#registerExtraDataType(Identifier, Class)` 在 `GoopInitalizer` 中注册这个新的“额外数据类型”。
+的类。然后，你需要通过 `GoopEmitterRegistry#registerExtraDataType(ResourceLocation, Class)` 在 `GoopInitalizer` 中注册这个新的“额外数据类型”。
 好了，现在你已经创建了自己的 Goop
-粒子和一个计划使用它的发射器，在实例化发射器后加入 `.setParticleEffectOverride(new Identifier("examplemod", "coolgoop"), new ExtraGoopData())`
-。将 `Identifier` 替换为你的粒子名称，并且 **如果**你需要为你的效果提供额外的参数，可以用你自己的 `ExtraGoopData`
+粒子和一个计划使用它的发射器，在实例化发射器后加入 `.setParticleEffectOverride(new ResourceLocation("examplemod", "coolgoop"), new ExtraGoopData())`
+。将 `ResourceLocation` 替换为你的粒子名称，并且 **如果**你需要为你的效果提供额外的参数，可以用你自己的 `ExtraGoopData`
 类型实例来替换 `new ExtraGoopData()`。
 **请记住，你的 Goop 粒子的构造函数必须与默认的 Goop 粒子构造函数完全相同。**
 是的，这应该就是所有内容了！期待看到你用这些粒子 VFX 做的酷炫效果。
