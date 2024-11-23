@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-0.3')
+    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-1.0')
 }
 ```
 

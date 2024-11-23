@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-0.3')
+    implementation fg.deobf('com.github.MCTeamPotato:Goop-Reforged:1.20.1forge-1.0')
 }
 ```
 And that's pretty much it. You can now use the Goop Particles as you want; You can spawn them like any other particle; or we do something a bit cleaner.
