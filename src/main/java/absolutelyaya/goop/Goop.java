@@ -1,10 +1,8 @@
 package absolutelyaya.goop;
 
-import absolutelyaya.goop.api.GoopEmitterRegistry;
 import absolutelyaya.goop.client.GoopConfig;
 import absolutelyaya.goop.network.NetworkHandler;
 import absolutelyaya.goop.registries.ParticleRegistry;
-import absolutelyaya.goop.registries.TagRegistry;
 import com.mojang.logging.LogUtils;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;

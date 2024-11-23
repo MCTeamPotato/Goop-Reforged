@@ -1,4 +1,4 @@
-package absolutelyaya.goop.api;
+package absolutelyaya.goop.api.emitter;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,8 +9,8 @@ import java.util.function.BiFunction;
 
 /**
  * For Emitting Goop when an Entity is Killed. All particle Values can be based on fatal Damage Type as well as the killed Entity's data.
- * @see absolutelyaya.goop.api.AbstractGoopEmitter
- * @see absolutelyaya.goop.api.GoopEmitterRegistry
+ * @see AbstractGoopEmitter
+ * @see GoopEmitterRegistry
  */
 public class DeathGoopEmitter<T extends LivingEntity> extends AbstractGoopEmitter<T>
 {

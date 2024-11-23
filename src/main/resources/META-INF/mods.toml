@@ -8,15 +8,21 @@ displayName="${mod_name}"
 authors="${mod_authors}"
 
 description='''${mod_description}'''
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
    modId="forge"
    mandatory=true
    versionRange="${forge_version_range}"
    ordering="NONE"
    side="BOTH"
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
    modId="minecraft"
    mandatory=true
    versionRange="${minecraft_version_range}"
+   ordering="NONE"
+   side="BOTH"
+[[dependencies."${mod_id}"]]
+   modId="cloth_config"
+   mandatory=true
+   versionRange="[11.1.136,)"
    ordering="NONE"
    side="BOTH"

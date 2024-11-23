@@ -1,4 +1,4 @@
-package absolutelyaya.goop.api;
+package absolutelyaya.goop.api.emitter;
 
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.HitResult;
@@ -9,8 +9,8 @@ import java.util.function.BiFunction;
 
 /**
  * For Emitting Goop when a Projectile hits something. All particle Values can be based on HitResult as well as the Projectiles data.
- * @see absolutelyaya.goop.api.AbstractGoopEmitter
- * @see absolutelyaya.goop.api.GoopEmitterRegistry
+ * @see AbstractGoopEmitter
+ * @see GoopEmitterRegistry
  */
 public class ProjectileHitGoopEmitter<T extends Projectile> extends AbstractGoopEmitter<T>
 {

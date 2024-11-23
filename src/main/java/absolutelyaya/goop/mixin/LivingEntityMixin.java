@@ -1,6 +1,10 @@
 package absolutelyaya.goop.mixin;
 
 import absolutelyaya.goop.api.*;
+import absolutelyaya.goop.api.emitter.DamageGoopEmitter;
+import absolutelyaya.goop.api.emitter.DeathGoopEmitter;
+import absolutelyaya.goop.api.emitter.GoopEmitterRegistry;
+import absolutelyaya.goop.api.emitter.LandingGoopEmitter;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

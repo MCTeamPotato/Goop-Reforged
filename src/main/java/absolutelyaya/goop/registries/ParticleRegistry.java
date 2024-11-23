@@ -8,17 +8,16 @@ import absolutelyaya.goop.particles.GoopStringParticleEffect;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
 public class ParticleRegistry {
-    public static final DeferredRegister<ParticleType<?>> PARTICLE_REGISTER = DeferredRegister.create(Registries.PARTICLE_TYPE, Goop.MOD_ID);
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_REGISTER = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Goop.MOD_ID);
     public static final RegistryObject<ParticleType<GoopDropParticleEffect>> GOOP_DROP = register("goop_drop", false, new GoopDropParticleEffect.Factory(), type -> GoopDropParticleEffect.CODEC);
     public static final RegistryObject<ParticleType<GoopParticleEffect>> GOOP = register("goop", false, new GoopParticleEffect.Factory(), type -> GoopParticleEffect.CODEC);
     public static final RegistryObject<ParticleType<GoopStringParticleEffect>> GOOP_STRING = register("goop_string", false, new GoopStringParticleEffect.Factory(), type -> GoopStringParticleEffect.CODEC);

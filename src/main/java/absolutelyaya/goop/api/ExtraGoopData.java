@@ -1,6 +1,7 @@
 package absolutelyaya.goop.api;
 
 import absolutelyaya.goop.Goop;
+import absolutelyaya.goop.api.emitter.GoopEmitterRegistry;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,7 @@ public class ExtraGoopData
 	/**
 	 * When creating a new ExtraGoopData Type, override this with your unique Type Identifier and register it in the GoopEmitterRegistry.<br>
 	 * This will be used to get the correct packet reading method.
-	 * @see absolutelyaya.goop.api.GoopEmitterRegistry#registerExtraDataType(ResourceLocation, Class)
+	 * @see GoopEmitterRegistry#registerExtraDataType(ResourceLocation, Class)
 	 */
 	public static ResourceLocation getExtraDataType()
 	{

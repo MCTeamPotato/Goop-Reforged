@@ -1,5 +1,6 @@
-package absolutelyaya.goop.api;
+package absolutelyaya.goop.api.emitter;
 
+import absolutelyaya.goop.api.DamageData;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector4f;
@@ -8,8 +9,8 @@ import java.util.function.BiFunction;
 
 /**
  * For Emitting Goop when an Entity is Damaged. All particle Values can be based on Damage Type and Amount as well as the damaged Entity's data.
- * @see absolutelyaya.goop.api.AbstractGoopEmitter
- * @see absolutelyaya.goop.api.GoopEmitterRegistry
+ * @see AbstractGoopEmitter
+ * @see GoopEmitterRegistry
  */
 public class DamageGoopEmitter<T extends LivingEntity> extends AbstractGoopEmitter<T>
 {

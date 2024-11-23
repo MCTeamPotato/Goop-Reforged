@@ -1,6 +1,7 @@
-package absolutelyaya.goop.api;
+package absolutelyaya.goop.api.emitter;
 
 import absolutelyaya.goop.Goop;
+import absolutelyaya.goop.api.ExtraGoopData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,8 +24,8 @@ public class GoopEmitterRegistry {
      *
      * @param entityType Entity to register as an Emitter
      * @param emitter    The Emitter
-     * @see absolutelyaya.goop.api.DamageGoopEmitter
-     * @see absolutelyaya.goop.api.LandingGoopEmitter
+     * @see DamageGoopEmitter
+     * @see LandingGoopEmitter
      */
     public static void registerEmitter(EntityType<? extends LivingEntity> entityType, IGoopEmitter emitter) {
         if (frozen) {
@@ -44,8 +45,8 @@ public class GoopEmitterRegistry {
      *
      * @param entityType Entity to register as an Emitter
      * @param emitter    The Emitter
-     * @see absolutelyaya.goop.api.DamageGoopEmitter
-     * @see absolutelyaya.goop.api.LandingGoopEmitter
+     * @see DamageGoopEmitter
+     * @see LandingGoopEmitter
      */
     public static void registerProjectileEmitter(EntityType<? extends Projectile> entityType, IGoopEmitter emitter) {
         if (frozen) {

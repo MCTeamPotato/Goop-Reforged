@@ -1,12 +1,10 @@
 package absolutelyaya.goop.network.s2c;
 
 import absolutelyaya.goop.api.ExtraGoopData;
-import absolutelyaya.goop.api.GoopEmitterRegistry;
+import absolutelyaya.goop.api.emitter.GoopEmitterRegistry;
 import absolutelyaya.goop.api.WaterHandling;
 import absolutelyaya.goop.client.GoopClient;
-import absolutelyaya.goop.particles.EggGoopParticleEffect;
 import absolutelyaya.goop.particles.GoopDropParticleEffect;
-import absolutelyaya.goop.particles.GoopParticleEffect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

@@ -1,6 +1,7 @@
 package absolutelyaya.goop.api;
 
 import absolutelyaya.goop.Goop;
+import absolutelyaya.goop.api.emitter.*;
 import absolutelyaya.goop.registries.TagRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -19,7 +20,7 @@ public class Examples implements GoopInitializer
 	{
 		//All examples shown should work with any Entity, including ones added by other mods.
 		//Entities can have multiple emitters, even multiple of the same type.
-		
+
 		//This causes slimes to leave behind splodges of Green Goop when landing from a jump.
 		GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new LandingGoopEmitter<Slime>(
 				(slime, height) -> 0x2caa3b,
@@ -27,14 +28,14 @@ public class Examples implements GoopInitializer
 				(slime, height) -> 1,
 				(slime, height) -> Mth.clamp(height / 4f, 0.25f, 1) * slime.getSize()
 		).markDev());
-		
+
 		GoopEmitterRegistry.registerEmitter(EntityType.SLIME, new DamageGoopEmitter<Slime>(
 				(slime, data) -> 0x2caa3b,
 				(slime, data) -> new Vector4f(0f, 0f, 0f, Mth.clamp(data.amount() / 8f, 0.25f, 2f)),
 				(slime, data) -> data.source().is(TagRegistry.PHYSICAL) ? Math.round(Mth.clamp(data.amount() / 2f, 2f, 12f)) : 0,
 				(slime, data) -> Mth.clamp(data.amount() / 4f, 0.25f, 1)
 		).markDev());
-		
+
 		//This causes Zombies to bleed when Damaged by a Physical Attack.
 		//If the Client has Censor Mature Content on, these particles will render in their Censor Color.
 		GoopEmitterRegistry.registerEmitter(EntityType.ZOMBIE, new DamageGoopEmitter<Zombie>(
@@ -43,7 +44,7 @@ public class Examples implements GoopInitializer
 				(zombie, data) -> data.source().is(TagRegistry.PHYSICAL) ? Math.round(Mth.clamp(data.amount() / 2f, 2f, 12f)) : 0,
 				(zombie, data) -> Mth.clamp(data.amount() / 4f, 0.25f, 1)
 		).markDev().markMature());
-		
+
 		//This causes Snow Golems to melt into blue Goop upon Death.
 		//Since the particle is supposed to resemble water, it will simply disappear when making content with actual Water.
 		GoopEmitterRegistry.registerEmitter(EntityType.SNOW_GOLEM, new DeathGoopEmitter<SnowGolem>(
@@ -52,7 +53,7 @@ public class Examples implements GoopInitializer
 				(snowGolem, data) -> 2 + snowGolem.getRandom().nextInt(4),
 				(snowGolem, data) -> 0.5f + snowGolem.getRandom().nextFloat() / 0.5f
 		).setWaterHandling(WaterHandling.REMOVE_PARTICLE));
-		
+
 		//Makes Eggs leave behind... egg.. when thrown at something.
 		GoopEmitterRegistry.registerProjectileEmitter(EntityType.EGG, new ProjectileHitGoopEmitter<ThrownEgg>(
 				(egg, data) -> 0xffffff,

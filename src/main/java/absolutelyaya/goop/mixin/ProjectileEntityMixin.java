@@ -1,7 +1,7 @@
 package absolutelyaya.goop.mixin;
 
-import absolutelyaya.goop.api.GoopEmitterRegistry;
-import absolutelyaya.goop.api.ProjectileHitGoopEmitter;
+import absolutelyaya.goop.api.emitter.GoopEmitterRegistry;
+import absolutelyaya.goop.api.emitter.ProjectileHitGoopEmitter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

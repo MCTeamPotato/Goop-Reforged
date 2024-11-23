@@ -2,6 +2,7 @@ package absolutelyaya.goop.event;
 
 import absolutelyaya.goop.Goop;
 import absolutelyaya.goop.api.Examples;
+import absolutelyaya.goop.api.GoopInitializer;
 import absolutelyaya.goop.particles.EggGoopParticle;
 import absolutelyaya.goop.particles.GoopDropParticle;
 import absolutelyaya.goop.particles.GoopParticle;
@@ -16,6 +17,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import java.util.ServiceLoader;
+
 @Mod.EventBusSubscriber(modid = Goop.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvent {
     @SubscribeEvent
@@ -26,7 +29,7 @@ public class ModEvent {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        new Examples().registerGoopEmitters();
+        event.enqueueWork(() -> ServiceLoader.load(GoopInitializer.class).forEach(GoopInitializer::registerGoopEmitters));
     }
 
     @SubscribeEvent

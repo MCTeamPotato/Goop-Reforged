@@ -1,8 +1,9 @@
-package absolutelyaya.goop.api;
+package absolutelyaya.goop.api.emitter;
 
+import absolutelyaya.goop.api.ExtraGoopData;
+import absolutelyaya.goop.api.WaterHandling;
 import absolutelyaya.goop.network.NetworkHandler;
 import absolutelyaya.goop.network.s2c.GoopPacketS2C;
-import absolutelyaya.goop.registries.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public abstract class AbstractGoopEmitter<T extends Entity> implements IGoopEmitter {
