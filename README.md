@@ -30,10 +30,12 @@ And that's pretty much it. You can now use the Goop Particles as you want; You c
 Alright, now that you've imported the dependencies, we need to add a new entry point. First, create a class that implements the ``GoopInitializer`` interface.
 Then, register it to the mod event bus like this:
 ```
-@SubscribeEvent
-public static void onCommonSetup(FMLCommonSetupEvent event) {
-    new Examples().registerGoopEmitters();
-}
+    @SubscribeEvent
+    public static void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(()->{
+            new Examples().registerGoopEmitters();
+        });
+    }
 ```
 ^ That is where this mods Example emitters are registered. ^<br>
 If you just wanna see some quick Example Emitters, check out the ``Examples`` Class.

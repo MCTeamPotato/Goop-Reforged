@@ -37,10 +37,12 @@ dependencies {
 好，现在你已经导入了依赖，我们需要添加一个新的入口点。首先，创建一个实现 ``GoopInitalizer`` 接口的类。
 然后将其注册到模组总线上，像这样：
 ```
-@SubscribeEvent
-public static void onCommonSetup(FMLCommonSetupEvent event) {
-    new Examples().registerGoopEmitters();
-}
+    @SubscribeEvent
+    public static void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(()->{
+            new Examples().registerGoopEmitters();
+        });
+    }
 ```
 
  这就是该模组示例发射器注册的地方。 <br>

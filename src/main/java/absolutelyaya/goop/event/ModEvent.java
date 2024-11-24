@@ -29,7 +29,9 @@ public class ModEvent {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> ServiceLoader.load(GoopInitializer.class).forEach(GoopInitializer::registerGoopEmitters));
+        event.enqueueWork(()->{
+            new Examples().registerGoopEmitters();
+        });
     }
 
     @SubscribeEvent
