@@ -9,8 +9,6 @@ I don't know when I'll work on these, but they're things I definitely want to do
 - [ ] Client Side only Support
   - make effects work without servers needing the mod as well
   - add way to add effects client side; best case using in-game customization gui
-- [ ] Forge Port
-  - It'd be cool to figure out how to support *all* mod loaders regardless
 
 # That's cool but how do I use it
 ## Importing the dependency
